@@ -9,6 +9,8 @@ var port = 8080;
 
 http.listen(port);
 
+console.log("entered");
+
 app.use(express.static(__dirname + '/public'));
 app.set('view engine','ejs');
 
