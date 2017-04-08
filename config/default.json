@@ -1,0 +1,10 @@
+{
+  // Customer module configs 
+  "ChatBot": {
+    "Connection": {
+      "aiType": "apiai",
+      "clientId": "5c0cd1ca76734162909dbe4e78739a6b",
+        "portno":8080
+    }
+  }
+}

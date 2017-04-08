@@ -1,3 +1,9 @@
+var config = require('config')
+var aiTypeValue = config.get('ChatBot.Connection.aiType');
+var clientIdValue = config.get('ChatBot.Connection.clientId');
+var portNo = config.get('ChatBot.Connection.portno');
+var apiai = require(aiTypeValue);
+var app1 = apiai(clientIdValue);
 var express=require('express'),
     app=express(),
     http=require('http').createServer(app),
@@ -5,7 +11,7 @@ var express=require('express'),
 
 users = {};
 
-var port = 8080;
+var port = portNo;
 
 http.listen(port);
 
@@ -37,6 +43,26 @@ io.sockets.on('connection', function(socket){
     
     socket.on('send message', function(data,callback) {
         console.log("User Sending message");
+        var request = app1.textRequest(data, {sessionId: socket.nickname});
+        request.on('response', function(response) {
+            var responseText = "";
+            if(response.result.fulfillment.messages.length == 1) {
+                responseText = response.result.fulfillment.messages[0].speech;
+            }
+            else if(response.result.fulfillment.messages.length == 2) {
+                responseText = response.result.fulfillment.messages[0].speech;
+                //response.result.fulfillment.messages[1].replies.length
+                for(var iIndex = 0;iIndex < response.result.fulfillment.messages[1].replies.length;iIndex++) {
+                    respText = response.result.fulfillment.messages[1].replies[iIndex]
+                    responseText = responseText + " ::: " + respText;
+                }
+            }
+            io.sockets.emit('new message', {msg:responseText,nick:"VenkiBot"});
+        });
+        request.on('error', function(error) {
+            console.log(error);
+        });
+        request.end()
         io.sockets.emit('new message', {msg:data,nick:socket.nickname});
     });
     
